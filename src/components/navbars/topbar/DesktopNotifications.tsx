@@ -1,5 +1,5 @@
 import { ListGroup, Dropdown, Image } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { NotificationProps } from "types";
 import { NotificationList } from "./NotificationList";
 
@@ -10,12 +10,25 @@ interface DesktopNotificationProps {
 export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
   data,
 }) => {
+  const navigate = useNavigate();
+
+  // Fungsi logout
+  const handleLogout = () => {
+    // Hapus token (atau data user) dari localStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+
+    // Arahkan ke halaman login
+    navigate("/auth/sign-in", { replace: true });
+  };
+
   return (
     <ListGroup
       as="ul"
       bsPrefix="navbar-nav"
       className="navbar-right-wrap ms-auto d-flex nav-top-wrap"
     >
+      {/* 🔔 Notifikasi */}
       <Dropdown as="li" className="stopevent">
         <Dropdown.Toggle
           as="a"
@@ -29,7 +42,6 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
           className="dashboard-dropdown notifications-dropdown dropdown-menu-lg dropdown-menu-end py-0"
           aria-labelledby="dropdownNotification"
           align="end"
-          show
         >
           <Dropdown.Item className="mt-3" bsPrefix=" " as="div">
             <div className="border-bottom px-3 pt-0 pb-3 d-flex justify-content-between align-items-end">
@@ -53,6 +65,8 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>
+
+      {/* 👤 User */}
       <Dropdown as="li" className="ms-2">
         <Dropdown.Toggle
           as="a"
@@ -68,21 +82,22 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
             />
           </div>
         </Dropdown.Toggle>
+
         <Dropdown.Menu
-          className="dropdown-menu dropdown-menu-end "
+          className="dropdown-menu dropdown-menu-end"
           align="end"
           aria-labelledby="dropdownUser"
-          show
         >
           <Dropdown.Item as="div" className="px-4 pb-0 pt-2" bsPrefix=" ">
-            <div className="lh-1 ">
-              <h5 className="mb-1"> John E. Grainger</h5>
+            <div className="lh-1">
+              <h5 className="mb-1">John E. Grainger</h5>
               <Link to="#" className="text-inherit fs-6">
                 View my profile
               </Link>
             </div>
-            <div className=" dropdown-divider mt-3 mb-2"></div>
+            <div className="dropdown-divider mt-3 mb-2"></div>
           </Dropdown.Item>
+
           <Dropdown.Item eventKey="2">
             <i className="fe fe-user me-2"></i> Edit Profile
           </Dropdown.Item>
@@ -95,8 +110,11 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
           <Dropdown.Item>
             <i className="fe fe-settings me-2"></i> Account Settings
           </Dropdown.Item>
-          <Dropdown.Item>
-            <i className="fe fe-power me-2"></i>Sign Out
+
+          {/* 🚪 Tombol Logout */}
+          <Dropdown.Item onClick={handleLogout}>
+            <i className="fe fe-power me-2 text-danger"></i>
+            Sign Out
           </Dropdown.Item>
         </Dropdown.Menu>
       </Dropdown>

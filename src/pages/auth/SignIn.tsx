@@ -1,36 +1,73 @@
 //import node module libraries
 import { Row, Col, Card, Form, Button, Image } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 //import custom hook
 import { useMounted } from "hooks/useMounted";
+import api from "../../api/axios"; // pastikan path sesuai
 
 const SignIn = () => {
   const hasMounted = useMounted();
+  const navigate = useNavigate();
+
+  // State input
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await api.post("/auth/login", { username, password });
+
+      // ✅ Simpan semua data user ke localStorage
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      // ✅ Tambahkan user_id dan user_level agar dashboard bisa mengenali user
+      localStorage.setItem("user_id", res.data.user.id);
+      localStorage.setItem("user_level", res.data.user.level);
+
+      // Arahkan ke halaman utama
+      navigate("/");
+    } catch (err: any) {
+      alert(err.response?.data?.message || "Login gagal");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Row className="align-items-center justify-content-center g-0 min-vh-100">
+    <Row className="align-items-center justify-content-center g-0 min-vh-100 bg-light">
       <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
-        <Card className="smooth-shadow-md">
+        <Card className="smooth-shadow-md border-0">
           <Card.Body className="p-6">
-            <div className="mb-4">
+            <div className="text-center mb-4">
               <Link to="/">
                 <Image
                   src="/images/brand/logo/logo-primary.svg"
-                  className="mb-2"
-                  alt=""
+                  className="mb-3"
+                  alt="Logo"
+                  height={40}
                 />
               </Link>
-              <p className="mb-6">Please enter your user information.</p>
+              <p className="text-muted mb-4">
+                Silakan masukkan informasi login Anda.
+              </p>
             </div>
 
             {hasMounted && (
-              <Form>
+              <Form onSubmit={handleLogin}>
                 <Form.Group className="mb-3" controlId="username">
-                  <Form.Label>Username or email</Form.Label>
+                  <Form.Label>Username atau Email</Form.Label>
                   <Form.Control
-                    type="email"
+                    type="text"
                     name="username"
-                    placeholder="Enter address here"
+                    placeholder="Masukkan username/email"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     required
                   />
                 </Form.Group>
@@ -40,37 +77,38 @@ const SignIn = () => {
                   <Form.Control
                     type="password"
                     name="password"
-                    placeholder="**************"
+                    placeholder="********"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                 </Form.Group>
 
                 <div className="d-lg-flex justify-content-between align-items-center mb-4">
-                  <Form.Check type="checkbox" id="rememberme">
-                    <Form.Check.Input type="checkbox" />
-                    <Form.Check.Label>Remember me</Form.Check.Label>
-                  </Form.Check>
+                  <Form.Check type="checkbox" id="rememberme" label="Ingat saya" />
                 </div>
-                <div>
-                  <div className="d-grid">
-                    <Button variant="primary" type="submit">
-                      Sign In
-                    </Button>
+
+                <div className="d-grid">
+                  <Button
+                    variant="primary"
+                    type="submit"
+                    disabled={loading}
+                    className="fw-bold"
+                  >
+                    {loading ? "Memproses..." : "Masuk"}
+                  </Button>
+                </div>
+
+                <div className="d-md-flex justify-content-between mt-4">
+                  <div className="mb-2 mb-md-0">
+                    <Link to="/auth/sign-up" className="fs-6">
+                      Buat Akun Baru
+                    </Link>
                   </div>
-                  <div className="d-md-flex justify-content-between mt-4">
-                    <div className="mb-2 mb-md-0">
-                      <Link to="/auth/sign-up" className="fs-5">
-                        Create An Account{" "}
-                      </Link>
-                    </div>
-                    <div>
-                      <Link
-                        to="/auth/forget-password"
-                        className="text-inherit fs-5"
-                      >
-                        Forgot your password?
-                      </Link>
-                    </div>
+                  <div>
+                    <Link to="/auth/forget-password" className="text-inherit fs-6">
+                      Lupa Password?
+                    </Link>
                   </div>
                 </div>
               </Form>
