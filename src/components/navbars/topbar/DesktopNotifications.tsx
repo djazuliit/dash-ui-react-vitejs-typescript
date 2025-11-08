@@ -12,13 +12,20 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
 }) => {
   const navigate = useNavigate();
 
-  // Fungsi logout
+  // ✅ Ambil data user dari localStorage
+  const userJSON = localStorage.getItem("user");
+  const user = userJSON ? JSON.parse(userJSON) : null;
+
+  // ✅ Tentukan role berdasarkan level
+  const userLevelName = user?.level === 1 ? "Administrator" : "Pengguna";
+
+  // ✅ Fungsi Logout
   const handleLogout = () => {
-    // Hapus token (atau data user) dari localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("user_level");
 
-    // Arahkan ke halaman login
     navigate("/auth/sign-in", { replace: true });
   };
 
@@ -52,7 +59,6 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
                 </span>
               </Link>
             </div>
-
             <NotificationList notificationItems={data} />
             <div className="border-top px-3 pt-3 pb-3">
               <Link
@@ -66,7 +72,7 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
         </Dropdown.Menu>
       </Dropdown>
 
-      {/* 👤 User */}
+      {/* 👤 USER DROPDOWN */}
       <Dropdown as="li" className="ms-2">
         <Dropdown.Toggle
           as="a"
@@ -90,28 +96,20 @@ export const DesktopNotifications: React.FC<DesktopNotificationProps> = ({
         >
           <Dropdown.Item as="div" className="px-4 pb-0 pt-2" bsPrefix=" ">
             <div className="lh-1">
-              <h5 className="mb-1">John E. Grainger</h5>
-              <Link to="#" className="text-inherit fs-6">
-                View my profile
-              </Link>
+              {/* ✅ Nama dan Level User dari API */}
+              <h5 className="mb-1">{user?.name || "Tidak Ada Nama"}</h5>
+              <small className="text-muted">{userLevelName}</small>
             </div>
             <div className="dropdown-divider mt-3 mb-2"></div>
           </Dropdown.Item>
 
           <Dropdown.Item eventKey="2">
-            <i className="fe fe-user me-2"></i> Edit Profile
-          </Dropdown.Item>
-          <Dropdown.Item eventKey="3">
-            <i className="fe fe-activity me-2"></i> Activity Log
-          </Dropdown.Item>
-          <Dropdown.Item className="text-primary">
-            <i className="fe fe-star me-2"></i> Go Pro
-          </Dropdown.Item>
-          <Dropdown.Item>
-            <i className="fe fe-settings me-2"></i> Account Settings
+            <Link to="/pages/profile">
+              <i className="fe fe-user me-2"></i> Profile
+            </Link>
           </Dropdown.Item>
 
-          {/* 🚪 Tombol Logout */}
+          {/* 🚪 LOGOUT */}
           <Dropdown.Item onClick={handleLogout}>
             <i className="fe fe-power me-2 text-danger"></i>
             Sign Out

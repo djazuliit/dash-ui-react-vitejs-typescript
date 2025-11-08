@@ -1,3 +1,6 @@
+import { useEffect } from "react";
+import api from "./api/axios"; // sesuaikan path jika beda
+
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 // Layouts
@@ -7,41 +10,23 @@ import RootLayout from "layouts/RootLayout";
 // Auth Pages
 import SignIn from "./pages/auth/SignIn";
 import ForgetPassword from "pages/auth/ForgetPassword";
+import ForgotPasswordConfirm from "pages/auth/ForgotPasswordConfirm";
+import ResetPassword from "pages/auth/ResetPassword";
 import SignUp from "pages/auth/SignUp";
+import VerifyOtp from "pages/auth/VerifyOtp";
 import AkunWA from "pages/Akunwa";
+import Target from "pages/Target";
+import Wdsettings from "pages/Wdsettings";
+import AppSettings from "pages/Appsetting";
+import Withdraw from "pages/WdUser";
+import Profile from "pages/Profile";
+import WdManagement from "pages/WdManagement";
+import UserManagement from "pages/UserManagement";
+import LaporanManagement from "pages/LaporanManagement";
 
 // Dashboard Pages
 import Dashboard from "pages/dashboard/Index";
 import NotFound from "pages/dashboard/pages/NotFound";
-import LayoutVertical from "pages/dashboard/LayoutVertical";
-import Documentation from "pages/dashboard/Documentation";
-import ChangeLog from "pages/dashboard/Changelog";
-
-// Bootstrap components
-import Accordion from "./bootstrap-components/Accordions";
-import Alerts from "./bootstrap-components/Alerts";
-import Badges from "./bootstrap-components/Badges";
-import Breadcrumbs from "./bootstrap-components/Breadcrumbs";
-import ButtonGroup from "./bootstrap-components/ButtonGroup";
-import Buttons from "./bootstrap-components/Buttons";
-import Cards from "./bootstrap-components/Cards";
-import Carousels from "./bootstrap-components/Carousels";
-import CloseButtons from "./bootstrap-components/CloseButton";
-import Collapses from "./bootstrap-components/Collapse";
-import Dropdowns from "./bootstrap-components/Dropdowns";
-import Listgroups from "./bootstrap-components/ListGroup";
-import Modals from "./bootstrap-components/Modals";
-import Navbars from "./bootstrap-components/Navbars";
-import Navs from "./bootstrap-components/Navs";
-import Offcanvas from "./bootstrap-components/Offcanvas";
-import Overlays from "./bootstrap-components/Overlays";
-import Paginations from "./bootstrap-components/Paginations";
-import Popovers from "./bootstrap-components/Popovers";
-import Progress from "./bootstrap-components/Progress";
-import Spinners from "./bootstrap-components/Spinners";
-import Toasts from "./bootstrap-components/Toasts";
-import Tooltips from "./bootstrap-components/Tooltips";
-import Tables from "./bootstrap-components/Tables";
 
 // Import ProtectedRoute
 import ProtectedRoute from "hooks/ProtectedRoute";
@@ -55,6 +40,9 @@ const App = () => {
         { path: "sign-in", Component: SignIn },
         { path: "sign-up", Component: SignUp },
         { path: "forget-password", Component: ForgetPassword },
+        { path: "forgot-password-confirm", Component: ForgotPasswordConfirm},
+        { path: "reset-password", Component: ResetPassword },
+        { path: "verify-otp", Component: VerifyOtp },
       ],
     },
     {
@@ -69,43 +57,50 @@ const App = () => {
           children: [
             { path: "/", Component: Dashboard },
             { path: "/pages/akunwa", Component: AkunWA },
-            { path: "/documentation", Component: Documentation },
-            { path: "/changelog", Component: ChangeLog },
-            { path: "/layout-vertical", Component: LayoutVertical },
-            {
-              path: "/components",
-              children: [
-                { path: "accordions", Component: Accordion },
-                { path: "alerts", Component: Alerts },
-                { path: "badges", Component: Badges },
-                { path: "breadcrumbs", Component: Breadcrumbs },
-                { path: "button-group", Component: ButtonGroup },
-                { path: "buttons", Component: Buttons },
-                { path: "cards", Component: Cards },
-                { path: "carousels", Component: Carousels },
-                { path: "close-button", Component: CloseButtons },
-                { path: "collapse", Component: Collapses },
-                { path: "dropdowns", Component: Dropdowns },
-                { path: "list-group", Component: Listgroups },
-                { path: "modal", Component: Modals },
-                { path: "navbar", Component: Navbars },
-                { path: "navs", Component: Navs },
-                { path: "offcanvas", Component: Offcanvas },
-                { path: "overlays", Component: Overlays },
-                { path: "pagination", Component: Paginations },
-                { path: "popovers", Component: Popovers },
-                { path: "progress", Component: Progress },
-                { path: "spinners", Component: Spinners },
-                { path: "tables", Component: Tables },
-                { path: "toasts", Component: Toasts },
-                { path: "tooltips", Component: Tooltips },
-              ],
-            },
+            { path: "/pages/target", Component: Target },
+            { path: "/pages/appsetting", Component: AppSettings },
+            { path: "/pages/wdsettings", Component: Wdsettings },
+            { path: "/pages/wduser", Component: Withdraw },
+            { path: "/pages/profile", Component: Profile },
+            { path: "/pages/wdmanagement", Component: WdManagement },
+            { path: "/pages/usermanagement", Component: UserManagement },
+            { path: "/pages/laporanmanagement", Component: LaporanManagement },
+            
           ],
         },
       ],
     },
   ]);
+
+  // ✅ Fetch app data dan update favicon + title
+  useEffect(() => {
+    const fetchAppData = async () => {
+      try {
+        const res = await api.get("/app/first");
+        const data = res.data;
+
+        // ✅ Update Title
+        document.title = data.nama_app || "Aplikasi WA Blast";
+
+        // ✅ Update Favicon
+        const faviconUrl = data.favicon
+          ? `http://localhost:5000/uploads/app/${data.favicon}`
+          : "/favicon.ico";
+
+        let link: any = document.querySelector("link[rel~='icon']");
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = "icon";
+          document.head.appendChild(link);
+        }
+        link.href = faviconUrl;
+      } catch (err) {
+        console.error("Gagal fetch app data:", err);
+      }
+    };
+
+    fetchAppData();
+  }, []);
 
   return <RouterProvider router={router} />;
 };

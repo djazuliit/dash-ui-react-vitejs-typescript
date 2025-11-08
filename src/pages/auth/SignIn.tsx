@@ -1,11 +1,17 @@
 //import node module libraries
 import { Row, Col, Card, Form, Button, Image } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Tambahkan useEffect
 
 //import custom hook
 import { useMounted } from "hooks/useMounted";
 import api from "../../api/axios"; // pastikan path sesuai
+
+interface AppData {
+  name_app: string;
+  logo: string;
+  // tambahkan properti lain sesuai response API
+}
 
 const SignIn = () => {
   const hasMounted = useMounted();
@@ -15,6 +21,8 @@ const SignIn = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [appData, setAppData] = useState<AppData | null>(null); // 🔹 Type the state
+  const [logoLoading, setLogoLoading] = useState(true);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +47,23 @@ const SignIn = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchAppData = async () => {
+      try {
+        const res = await api.get("/app/first");
+        if (res.data) {
+          setAppData(res.data);
+        }
+      } catch (err) {
+        console.error("Gagal memuat data aplikasi:", err);
+      } finally {
+        setLogoLoading(false);
+      }
+    };
+
+    fetchAppData();
+  }, []);
+
   return (
     <Row className="align-items-center justify-content-center g-0 min-vh-100 bg-light">
       <Col xxl={4} lg={6} md={8} xs={12} className="py-8 py-xl-0">
@@ -46,12 +71,26 @@ const SignIn = () => {
           <Card.Body className="p-6">
             <div className="text-center mb-4">
               <Link to="/">
-                <Image
-                  src="/images/brand/logo/logo-primary.svg"
-                  className="mb-3"
-                  alt="Logo"
-                  height={40}
-                />
+                {logoLoading ? (
+                  <div className="mb-3" style={{ height: '40px' }}>
+                    Loading...
+                  </div>
+                ) : appData?.logo ? (
+                  <Image
+                    src={`http://localhost:5000/uploads/app/${appData.logo}`}
+                    className="mb-3"
+                    alt="Logo"
+                    height={40}
+                    style={{ objectFit: 'contain' }}
+                  />
+                ) : (
+                  <Image
+                    src="/images/brand/logo/logo-primary.svg"
+                    className="mb-3"
+                    alt="Logo"
+                    height={40}
+                  />
+                )}
               </Link>
               <p className="text-muted mb-4">
                 Silakan masukkan informasi login Anda.
