@@ -237,17 +237,6 @@ const WdSettings = () => {
       ),
       sortable: true 
     },
-    { 
-      name: "Nominal Maksimal", 
-      selector: (row: any) => `Rp ${row.nominal_max.toLocaleString("id-ID")}`,
-      cell: (row: any) => (
-        <div>
-          <div>Rp {row.nominal_max.toLocaleString("id-ID")}</div>
-          <small className="text-muted">{row.max_text}</small>
-        </div>
-      ),
-      sortable: true 
-    },
     {
       name: "Diperbarui",
       selector: (row: any) => new Date(row.updated_at).toLocaleString("id-ID"),
